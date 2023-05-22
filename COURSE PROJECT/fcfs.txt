@@ -1,0 +1,169 @@
+module counter_design (
+  input request_0,request_1,request_2,request_3,
+  input clk,
+  input enable_0,enable_1,enable_2,enable_3,
+  output reg [3:0] count_0,
+  output reg [3:0] count_1,
+  output reg [3:0] count_2,
+  output reg [3:0] count_3,
+  output reg [3:0] grant,
+  output reg grant_0,
+output reg grant_1,
+output reg grant_2,
+output reg grant_3
+);
+
+comparator cmp (
+  .count_0(count_0),
+  .count_1(count_1),
+  .count_2(count_2),
+  .count_3(count_3),
+  .grant_0(grant_0),
+  .grant_1(grant_1),
+  .grant_2(grant_2),
+  .grant_3(grant_3)
+);
+
+or_gate or1 (
+  .grant_0(grant_0),
+  .grant_1(grant_1),
+  .grant_2(grant_2),
+  .grant_3(grant_3),
+  .or_output(or_output)
+ 
+);
+
+
+
+always @ (posedge clk)
+begin
+  if (enable_0==1 && request_0==1)
+    count_0 <= count_0 + 1;
+end
+
+always @ (posedge clk)
+begin
+  if (enable_1==1 && request_1==1)
+    count_1 <= count_1 + 1;
+end
+
+always @ (posedge clk)
+begin
+  if (enable_2==1 && request_2==1)
+    count_2 <= count_2 + 1;
+end
+
+always @ (posedge clk)
+begin
+  if (enable_3==1 && request_3==1)
+    count_3 <= count_3 + 1;
+end
+
+endmodule
+
+
+
+`timescale 1ns/1ns
+
+module counter_design_tb;
+
+reg  request_0;
+reg  request_1;
+reg  request_2;
+reg  request_3;
+reg clk;
+reg enable_0;
+reg enable_1;
+reg enable_2;
+reg enable_3;
+wire [3:0] count_0;
+wire [3:0] count_1;
+wire [3:0] count_2;
+wire [3:0] count_3;
+wire [3:0] grant;
+wire or_output;
+
+
+
+
+counter_design counter (
+  .request(request),
+  .clk(clk),
+  .enable(enable),
+  .count_0(count_0),
+  .count_1(count_1),
+  .count_2(count_2),
+  .count_3(count_3),
+  .grant(grant)
+
+);
+
+initial
+clk =0;
+always #30 clk=~clk;
+initial begin
+  request_0= 1;
+  enable_0= 1;
+
+ 
+  #50 $finish;
+end
+
+always @ (posedge clk)
+begin
+  $display("Clock 0: Count_0 = %d, Count_1 = %d, Count_2 = %d, Count_3 = %d, Grant = %d, Out_line = %d", count_0, count_1, count_2, count_3, grant, out_line);
+end
+
+always @ (posedge clk)
+begin
+  $display("Clock 1: Count_0 = %d, Count_1 = %d, Count_2 = %d, Count_3 = %d, Grant = %d, Out_line = %d", count_0, count_1, count_2, count_3, grant, out_line);
+end
+
+always @ (posedge clk)
+begin
+  $display("Clock 2: Count_0 = %d, Count_1 = %d, Count_2 = %d, Count_3 = %d, Grant = %d, Out_line = %d", count_0, count_1, count_2, count_3, grant, out_line);
+end
+
+always @ (posedge clk)
+begin
+  $display("Clock 3: Count_0 = %d, Count_1 = %d, Count_2 = %d, Count_3 = %d, Grant = %d, Out_line = %d", count_0, count_1, count_2, count_3, grant, out_line);
+end
+
+always #1 clk = ~clk;
+
+endmodule
+
+module comparator(clk,count_0,count_1,count_2,count_3,grant_0,grant_1,grant_2,grant_3);
+output grant_0,grant_1,grant_2,grant_3;
+input clk,count_0,count_1,count_2,count_3 ;
+always @(posedge clk)
+begin
+ if(count_0 >= count_1 && count_0 >= count_2 && count_0 >= count_3)
+ begin
+  assign grant_0 <= 1;
+ end 
+
+  else if(count_1 >= count_0 && count_1 >= count_2 && count_1 >= count_3)
+  begin
+assign grant_1 <=1;
+end
+
+ else if(count_2 >= count_0 && count_2 >= count_1 && count_2 >= count_3)
+ begin
+ assign grant_2 <=1;
+end
+
+  else //(count_3 >= count_0 && count_3 >= count_1 && count_3 >= count_2)
+  begin
+  assign grant_3 <=1;
+end
+
+
+end
+endmodule
+
+module or_gate(grant_0,grant_1,grant_2,grant_3,or_output);
+output or_output;
+input grant_0,grant_1,grant_2,grant_3;
+assign  or_output = grant_0|grant_1|grant_2|grant_3;
+endmodule
